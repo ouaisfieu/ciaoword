@@ -7,14 +7,9 @@ import {
   Palette,
   Download,
   HelpCircle,
-  Target,
-  Network,
-  Code,
-  Zap,
 } from 'lucide-react';
 import { templates } from '../data/templates';
 import { availableThemes } from '../data/themes';
-import { MissionPanel } from './MissionPanel';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
@@ -29,14 +24,11 @@ export function Sidebar() {
     addConsoleMessage,
     setShowTutorial,
     setTutorialStep,
-    userProgress,
-    setActiveView,
   } = useApp();
-  const [activeTab, setActiveTab] = useState<'files' | 'missions' | 'templates' | 'settings'>('files');
+  const [activeTab, setActiveTab] = useState<'files' | 'templates' | 'settings'>('files');
 
   const handleFileClick = (fileId: string) => {
     setCurrentFile(fileId);
-    setActiveView('editor');
   };
 
   const handleTemplateSelect = (templateId: string) => {
@@ -67,10 +59,9 @@ export function Sidebar() {
     });
 
     setCurrentFile(newFiles[0]?.id || null);
-    setActiveView('editor');
     addConsoleMessage({
       type: 'success',
-      message: `Template "${template.name}" charge`,
+      message: `Template "${template.name}" chargé`,
     });
   };
 
@@ -90,26 +81,13 @@ export function Sidebar() {
 
     addConsoleMessage({
       type: 'success',
-      message: 'Projet exporte avec succes. Vous pouvez le deployer ou vous voulez.',
+      message: 'Projet exporté avec succès',
     });
   };
 
   const handleStartTutorial = () => {
     setShowTutorial(true);
     setTutorialStep(0);
-  };
-
-  const getPhaseLabel = () => {
-    const phases: Record<string, string> = {
-      awakening: 'Eveil',
-      observation: 'Observation',
-      deconstruction: 'Deconstruction',
-      creation: 'Creation',
-      influence: 'Influence',
-      network: 'Reseau',
-      campaign: 'Campagne',
-    };
-    return phases[userProgress.currentPhase] || 'Eveil';
   };
 
   return (
@@ -124,68 +102,47 @@ export function Sidebar() {
     >
       <div
         style={{
-          padding: '1rem',
-          background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`,
-          color: 'white',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <Zap size={18} />
-          <span style={{ fontWeight: 600 }}>C!AoWORD</span>
-        </div>
-        <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>
-          Phase: {getPhaseLabel()} | {userProgress.completedMissions.length} missions
-        </div>
-      </div>
-
-      <div
-        style={{
           display: 'flex',
           borderBottom: `1px solid ${theme.colors.border}`,
           background: theme.colors.background,
         }}
       >
         {[
-          { id: 'files', icon: Code, label: 'Code' },
-          { id: 'missions', icon: Target, label: 'Missions' },
-          { id: 'templates', icon: BookOpen, label: 'Kits' },
-          { id: 'settings', icon: Palette, label: 'Style' },
+          { id: 'files', icon: FolderOpen, label: 'Fichiers' },
+          { id: 'templates', icon: BookOpen, label: 'Templates' },
+          { id: 'settings', icon: Palette, label: 'Paramètres' },
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as 'files' | 'missions' | 'templates' | 'settings')}
+            onClick={() => setActiveTab(tab.id as any)}
             style={{
               flex: 1,
-              padding: '0.6rem 0.25rem',
+              padding: '0.75rem',
               background: activeTab === tab.id ? theme.colors.surface : 'transparent',
               border: 'none',
-              borderBottom: activeTab === tab.id ? `2px solid ${theme.colors.primary}` : '2px solid transparent',
+              borderBottom: activeTab === tab.id ? `2px solid ${theme.colors.primary}` : 'none',
               cursor: 'pointer',
               color: activeTab === tab.id ? theme.colors.primary : theme.colors.textSecondary,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '0.2rem',
-              fontSize: '0.65rem',
-              transition: 'all 0.2s',
+              gap: '0.25rem',
+              fontSize: '0.75rem',
             }}
           >
-            <tab.icon size={14} />
+            <tab.icon size={16} />
             {tab.label}
           </button>
         ))}
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
         {activeTab === 'files' && (
-          <div style={{ padding: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-              <h3 style={{ color: theme.colors.text, fontSize: '0.875rem', margin: 0 }}>
-                {currentProject?.name || 'Projet'}
-              </h3>
-              <FolderOpen size={14} color={theme.colors.textSecondary} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <div>
+            <h3 style={{ color: theme.colors.text, fontSize: '0.875rem', marginBottom: '1rem' }}>
+              {currentProject?.name || 'Projet'}
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {currentProject?.files.map((file) => (
                 <button
                   key={file.id}
@@ -194,7 +151,7 @@ export function Sidebar() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    padding: '0.5rem 0.75rem',
+                    padding: '0.5rem',
                     background: currentFile === file.id ? theme.colors.primary : 'transparent',
                     color: currentFile === file.id ? 'white' : theme.colors.text,
                     border: 'none',
@@ -202,7 +159,6 @@ export function Sidebar() {
                     cursor: 'pointer',
                     textAlign: 'left',
                     fontSize: '0.875rem',
-                    transition: 'all 0.15s',
                   }}
                 >
                   <FileText size={14} />
@@ -210,7 +166,7 @@ export function Sidebar() {
                 </button>
               ))}
             </div>
-            <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <button
                 onClick={handleExport}
                 style={{
@@ -218,18 +174,17 @@ export function Sidebar() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.5rem',
-                  padding: '0.6rem',
+                  padding: '0.5rem',
                   background: theme.colors.primary,
                   color: 'white',
                   border: 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  fontWeight: 500,
+                  fontSize: '0.875rem',
                 }}
               >
                 <Download size={14} />
-                Exporter (ZIP)
+                Exporter le projet
               </button>
               <button
                 onClick={handleStartTutorial}
@@ -238,86 +193,93 @@ export function Sidebar() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.5rem',
-                  padding: '0.6rem',
-                  background: 'transparent',
-                  color: theme.colors.secondary,
-                  border: `1px solid ${theme.colors.secondary}`,
+                  padding: '0.5rem',
+                  background: theme.colors.secondary,
+                  color: 'white',
+                  border: 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '0.8rem',
+                  fontSize: '0.875rem',
                 }}
               >
                 <HelpCircle size={14} />
-                Guide
+                Démarrer le tutoriel
               </button>
             </div>
           </div>
         )}
 
-        {activeTab === 'missions' && <MissionPanel />}
-
         {activeTab === 'templates' && (
-          <div style={{ padding: '1rem' }}>
+          <div>
             <h3 style={{ color: theme.colors.text, fontSize: '0.875rem', marginBottom: '1rem' }}>
-              Kits de demarrage
+              Bibliothèque de Templates
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {templates.map((template) => (
                 <div
                   key={template.id}
                   style={{
-                    padding: '0.75rem',
+                    padding: '1rem',
                     background: theme.colors.background,
                     borderRadius: '8px',
                     border: `1px solid ${theme.colors.border}`,
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <h4 style={{ color: theme.colors.text, fontSize: '0.8rem', margin: 0 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.5rem',
+                    }}
+                  >
+                    <h4 style={{ color: theme.colors.text, fontSize: '0.875rem', margin: 0 }}>
                       {template.name}
                     </h4>
                     <span
                       style={{
-                        fontSize: '0.6rem',
-                        padding: '0.1rem 0.4rem',
-                        borderRadius: '10px',
+                        fontSize: '0.625rem',
+                        padding: '0.125rem 0.5rem',
+                        borderRadius: '12px',
                         background:
                           template.difficulty === 'beginner'
                             ? '#10b981'
                             : template.difficulty === 'intermediate'
                             ? '#f59e0b'
-                            : template.difficulty === 'advanced'
-                            ? '#ef4444'
-                            : '#8b5cf6',
+                            : '#ef4444',
                         color: 'white',
                       }}
                     >
                       {template.difficulty === 'beginner'
-                        ? 'Debut'
+                        ? 'Débutant'
                         : template.difficulty === 'intermediate'
-                        ? 'Inter'
-                        : template.difficulty === 'advanced'
-                        ? 'Avance'
-                        : 'Subversif'}
+                        ? 'Intermédiaire'
+                        : 'Avancé'}
                     </span>
                   </div>
-                  <p style={{ color: theme.colors.textSecondary, fontSize: '0.7rem', marginBottom: '0.5rem', lineHeight: 1.4 }}>
+                  <p
+                    style={{
+                      color: theme.colors.textSecondary,
+                      fontSize: '0.75rem',
+                      marginBottom: '0.5rem',
+                    }}
+                  >
                     {template.description}
                   </p>
                   <button
                     onClick={() => handleTemplateSelect(template.id)}
                     style={{
                       width: '100%',
-                      padding: '0.4rem',
+                      padding: '0.5rem',
                       background: theme.colors.primary,
                       color: 'white',
                       border: 'none',
-                      borderRadius: '4px',
+                      borderRadius: '6px',
                       cursor: 'pointer',
-                      fontSize: '0.7rem',
+                      fontSize: '0.75rem',
                     }}
                   >
-                    Charger
+                    Charger ce template
                   </button>
                 </div>
               ))}
@@ -326,79 +288,53 @@ export function Sidebar() {
         )}
 
         {activeTab === 'settings' && (
-          <div style={{ padding: '1rem' }}>
+          <div>
             <h3 style={{ color: theme.colors.text, fontSize: '0.875rem', marginBottom: '1rem' }}>
-              Apparence
+              Personnalisation
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {availableThemes.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => {
-                    setTheme(t);
-                    addConsoleMessage({
-                      type: 'success',
-                      message: `Theme "${t.name}" active`,
-                    });
-                  }}
-                  style={{
-                    padding: '0.75rem',
-                    background: theme.id === t.id ? `${theme.colors.primary}20` : theme.colors.background,
-                    color: theme.colors.text,
-                    border: theme.id === t.id ? `2px solid ${theme.colors.primary}` : `1px solid ${theme.colors.border}`,
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                  }}
-                >
-                  <div style={{ fontWeight: 500, fontSize: '0.8rem', marginBottom: '0.5rem' }}>{t.name}</div>
-                  <div style={{ display: 'flex', gap: '0.25rem' }}>
-                    {Object.values(t.colors).slice(0, 5).map((color, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          width: '16px',
-                          height: '16px',
-                          background: color,
-                          borderRadius: '3px',
-                          border: '1px solid rgba(0,0,0,0.1)',
-                        }}
-                      />
-                    ))}
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <div style={{ marginTop: '2rem' }}>
-              <h4 style={{ color: theme.colors.text, fontSize: '0.8rem', marginBottom: '0.75rem' }}>
-                Suite CIAoWORLD
+            <div>
+              <h4 style={{ color: theme.colors.text, fontSize: '0.75rem', marginBottom: '0.5rem' }}>
+                Thème
               </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', opacity: 0.7 }}>
-                {[
-                  { name: 'C!AoSCAN', desc: 'Veille automatisee', locked: true },
-                  { name: 'C!AoNET', desc: 'Gestion de reseaux', locked: true },
-                  { name: 'C!AoVOX', desc: 'Amplification', locked: true },
-                  { name: 'C!AoSAFE', desc: 'Securite', locked: true },
-                ].map((tool) => (
-                  <div
-                    key={tool.name}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {availableThemes.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => {
+                      setTheme(t);
+                      addConsoleMessage({
+                        type: 'success',
+                        message: `Thème "${t.name}" activé`,
+                      });
+                    }}
                     style={{
-                      padding: '0.5rem',
-                      background: theme.colors.background,
+                      padding: '0.75rem',
+                      background: theme.id === t.id ? theme.colors.primary : theme.colors.background,
+                      color: theme.id === t.id ? 'white' : theme.colors.text,
+                      border: `1px solid ${theme.colors.border}`,
                       borderRadius: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      fontSize: '0.875rem',
                     }}
                   >
-                    <Network size={14} color={theme.colors.secondary} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '0.75rem', color: theme.colors.text }}>{tool.name}</div>
-                      <div style={{ fontSize: '0.65rem', color: theme.colors.textSecondary }}>{tool.desc}</div>
+                    <div style={{ fontWeight: 500 }}>{t.name}</div>
+                    <div style={{ display: 'flex', gap: '0.25rem', marginTop: '0.5rem' }}>
+                      {Object.values(t.colors)
+                        .slice(0, 4)
+                        .map((color, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              width: '20px',
+                              height: '20px',
+                              background: color,
+                              borderRadius: '4px',
+                            }}
+                          />
+                        ))}
                     </div>
-                    <span style={{ fontSize: '0.6rem', color: theme.colors.textSecondary }}>Bientot</span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
