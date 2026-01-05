@@ -36,6 +36,8 @@ const defaultLayout: LayoutConfig = {
   sidebarWidth: 280,
   consoleHeight: 200,
   showSidebar: true,
+  showEditor: true,
+  showPreview: true,
   showConsole: true,
   showAssistant: false,
 };
