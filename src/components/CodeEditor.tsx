@@ -51,22 +51,48 @@ export function CodeEditor() {
   }
 
   return (
-    <div style={{ height: '100%', width: '100%' }}>
+    <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
       <Editor
         height="100%"
         language={currentFileObj.language}
         value={code}
         onChange={handleEditorChange}
-        theme={theme.id.includes('dark') ? 'vs-dark' : 'light'}
+        theme={theme.id.includes('dark') ? 'vs-dark' : 'vs'}
         options={{
-          minimap: { enabled: true },
-          fontSize: 14,
+          minimap: { enabled: true, scale: 1 },
+          fontSize: 15,
+          lineHeight: 24,
+          fontFamily: "'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace",
+          fontLigatures: true,
           lineNumbers: 'on',
           roundedSelection: true,
           scrollBeyondLastLine: false,
           automaticLayout: true,
           tabSize: 2,
           wordWrap: 'on',
+          wrappingIndent: 'indent',
+          smoothScrolling: true,
+          cursorBlinking: 'smooth',
+          cursorSmoothCaretAnimation: 'on',
+          renderLineHighlight: 'all',
+          renderWhitespace: 'selection',
+          padding: { top: 16, bottom: 16 },
+          suggest: {
+            showKeywords: true,
+            showSnippets: true,
+          },
+          quickSuggestions: {
+            other: true,
+            comments: false,
+            strings: true,
+          },
+          formatOnPaste: true,
+          formatOnType: true,
+          folding: true,
+          foldingStrategy: 'indentation',
+          bracketPairColorization: {
+            enabled: true,
+          },
         }}
       />
     </div>

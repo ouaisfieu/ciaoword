@@ -6,10 +6,10 @@ import { Console } from './components/Console';
 import { Sidebar } from './components/Sidebar';
 import { TutorialModal } from './components/TutorialModal';
 import { VirtualAssistant } from './components/VirtualAssistant';
-import { Menu, EyeOff, Terminal, X } from 'lucide-react';
+import { Menu, EyeOff, Terminal, X, Code } from 'lucide-react';
 
 function App() {
-  const { theme, layout, setLayout } = useApp();
+  const { theme, layout, setLayout, currentFile } = useApp();
 
   const toggleSidebar = () => {
     setLayout({ ...layout, showSidebar: !layout.showSidebar });
@@ -96,7 +96,7 @@ function App() {
       </header>
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        <Group orientation="horizontal">
+        <Group orientation="horizontal" style={{ width: '100%', height: '100%' }}>
           {layout.showSidebar && (
             <>
               <Panel defaultSize={20} minSize={15} maxSize={30}>
@@ -113,19 +113,34 @@ function App() {
           )}
 
           <Panel defaultSize={layout.showSidebar ? 40 : 50} minSize={30}>
-            <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <div
                 style={{
-                  padding: '0.5rem 1rem',
+                  padding: '0.75rem 1rem',
                   background: theme.colors.surface,
                   borderBottom: `1px solid ${theme.colors.border}`,
-                  fontWeight: 500,
+                  fontWeight: 600,
                   fontSize: '0.875rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  letterSpacing: '0.3px',
                 }}
               >
-                Éditeur de Code
+                <Code size={16} color={theme.colors.primary} />
+                <span>Éditeur de Code</span>
+                {currentFile && (
+                  <span style={{
+                    marginLeft: 'auto',
+                    fontSize: '0.75rem',
+                    color: theme.colors.textSecondary,
+                    fontWeight: 400,
+                  }}>
+                    {currentFile}
+                  </span>
+                )}
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, overflow: 'hidden' }}>
                 <CodeEditor />
               </div>
             </div>
