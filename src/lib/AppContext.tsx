@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import type { Theme, LayoutConfig, Project, ConsoleMessage, UserProgress, Campaign } from '../types';
+import type { Theme, LayoutConfig, Project, ConsoleMessage } from '../types';
 import { defaultTheme } from '../data/themes';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
@@ -20,12 +20,6 @@ interface AppContextType {
   setShowTutorial: (show: boolean) => void;
   tutorialStep: number;
   setTutorialStep: (step: number) => void;
-  userProgress: UserProgress;
-  updateProgress: (progress: UserProgress) => void;
-  campaigns: Campaign[];
-  setCampaigns: (campaigns: Campaign[]) => void;
-  activeView: 'editor' | 'missions' | 'analyzer' | 'campaign';
-  setActiveView: (view: 'editor' | 'missions' | 'analyzer' | 'campaign') => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -33,30 +27,17 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const defaultLayout: LayoutConfig = {
   editorWidth: 50,
   previewWidth: 50,
-  sidebarWidth: 280,
+  sidebarWidth: 250,
   consoleHeight: 200,
   showSidebar: true,
   showConsole: true,
   showAssistant: false,
 };
 
-const defaultUserProgress: UserProgress = {
-  id: `user-${Date.now()}`,
-  currentPhase: 'awakening',
-  completedMissions: [],
-  unlockedTools: ['preview', 'export'],
-  insightsGained: [],
-  sitesCreated: 0,
-  sitesDeployed: 0,
-  campaignsLaunched: 0,
-  networkSize: 0,
-  awakenedAt: new Date().toISOString(),
-};
-
 const createDefaultProject = (): Project => ({
   id: 'default',
-  name: 'Premier Contact',
-  description: 'Votre premiere creation avec C!AoWORD',
+  name: 'Mon Premier Projet',
+  description: 'Créé avec C!AoWORD',
   files: [
     {
       id: 'index.html',
@@ -68,33 +49,14 @@ const createDefaultProject = (): Project => ({
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Voix</title>
+    <title>C!AoWORD</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Ma Voix</h1>
-            <p class="subtitle">Parce que j'ai quelque chose a dire</p>
-        </header>
-
-        <main>
-            <article>
-                <h2>Le Message</h2>
-                <p>Ce que les autres ne veulent pas que vous entendiez.</p>
-                <p>Le web a ete cree pour etre libre. Pour que chacun puisse s'exprimer sans demander la permission.</p>
-                <p>Vous etes ici pour reprendre ce pouvoir.</p>
-            </article>
-
-            <section class="cta-section">
-                <button class="cta" onclick="handleAwakening()">Commencer l'eveil</button>
-            </section>
-        </main>
-
-        <footer>
-            <p>Cree librement, sans permission.</p>
-            <p class="signature">C!AoWORD - Poste de travail d'emancipation numerique</p>
-        </footer>
+        <h1>Bienvenue dans C!AoWORD</h1>
+        <p>Votre poste de travail pour créer des sites statiques</p>
+        <button onclick="handleClick()">Commencer</button>
     </div>
     <script src="script.js"></script>
 </body>
@@ -105,17 +67,7 @@ const createDefaultProject = (): Project => ({
       name: 'style.css',
       type: 'file',
       language: 'css',
-      content: `/* Systeme de design emancipateur */
-:root {
-    --c-primary: #7CB9A8;
-    --c-secondary: #B39BC8;
-    --c-dark: #2D4A42;
-    --c-light: #F5FAF8;
-    --c-text: #1a1a1a;
-    --c-text-secondary: #6B8580;
-}
-
-* {
+      content: `* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -123,117 +75,49 @@ const createDefaultProject = (): Project => ({
 
 body {
     font-family: system-ui, -apple-system, sans-serif;
-    background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-secondary) 100%);
+    background: linear-gradient(135deg, #98D8C8 0%, #C8B5D8 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
 }
 
 .container {
     background: white;
-    max-width: 600px;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-}
-
-header {
-    background: var(--c-dark);
-    color: white;
-    padding: 2.5rem 2rem;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     text-align: center;
+    max-width: 500px;
 }
 
-header h1 {
+h1 {
+    color: #2D4A42;
     font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    letter-spacing: -1px;
+    margin-bottom: 1rem;
 }
 
-.subtitle {
-    opacity: 0.85;
-    font-size: 1.1rem;
-}
-
-main {
-    padding: 2rem;
-}
-
-article {
+p {
+    color: #6B8580;
+    font-size: 1.125rem;
     margin-bottom: 2rem;
 }
 
-article h2 {
-    color: var(--c-dark);
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-article p {
-    color: var(--c-text-secondary);
-    line-height: 1.7;
-    margin-bottom: 1rem;
-}
-
-.cta-section {
-    text-align: center;
-}
-
-.cta {
-    background: linear-gradient(135deg, var(--c-primary), var(--c-secondary));
+button {
+    background: #7CB9A8;
     color: white;
     border: none;
-    padding: 1rem 2.5rem;
-    font-size: 1.1rem;
-    font-weight: 600;
+    padding: 1rem 2rem;
+    font-size: 1rem;
     border-radius: 50px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(124, 185, 168, 0.4);
+    transition: all 0.3s;
 }
 
-.cta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(124, 185, 168, 0.5);
-}
-
-.cta:active {
-    transform: translateY(-1px);
-}
-
-footer {
-    background: var(--c-light);
-    padding: 1.5rem 2rem;
-    text-align: center;
-}
-
-footer p {
-    color: var(--c-text-secondary);
-    font-size: 0.875rem;
-}
-
-.signature {
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    opacity: 0.7;
-}
-
-/* Animation d'entree */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.container {
-    animation: fadeInUp 0.8s ease-out;
+button:hover {
+    background: #B39BC8;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(124, 185, 168, 0.3);
 }`,
     },
     {
@@ -241,52 +125,21 @@ footer p {
       name: 'script.js',
       type: 'file',
       language: 'javascript',
-      content: `// C!AoWORD - Script d'eveil
+      content: `console.log('Bienvenue dans C!AoWORD!');
 
-console.log('%c C!AoWORD ', 'background: #2D4A42; color: white; padding: 4px 8px; border-radius: 4px;');
-console.log('Bienvenue. Vous avez fait le premier pas.');
-
-function handleAwakening() {
-    const messages = [
-        "Vous venez de creer votre premier site.",
-        "Aucune plateforme ne vous a donne la permission.",
-        "Aucune entreprise ne collecte vos donnees.",
-        "Ce code vous appartient.",
-        "",
-        "Le web a ete cree pour ca.",
-        "Pour que chacun puisse s'exprimer librement.",
-        "",
-        "Continuez. Apprenez. Creez. Resistez."
-    ];
-
-    alert(messages.join("\\n"));
-
-    console.log('Eveil initie a', new Date().toLocaleTimeString());
-    console.log('Prochaine etape: explorez les missions dans le panneau lateral.');
+function handleClick() {
+    alert('Bravo! Vous avez cliqué sur le bouton.\\n\\nCommencez à éditer le code pour créer votre site!');
+    console.log('Bouton cliqué à', new Date().toLocaleTimeString());
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Page chargee avec succes');
-    console.log('Editez le code et voyez les changements en temps reel');
-    console.log('');
-    console.log('Conseil: Cliquez sur "Commencer l\\'eveil" pour comprendre pourquoi vous etes ici.');
-});
-
-// Easter egg subtil
-let sequence = [];
-document.addEventListener('keydown', (e) => {
-    sequence.push(e.key);
-    sequence = sequence.slice(-5);
-    if (sequence.join('') === 'eveil') {
-        console.log('%c VOUS ETES EVEILLE ', 'background: #B39BC8; color: white; padding: 8px; font-size: 16px;');
-        console.log('Le pouvoir est entre vos mains. Utilisez-le sagement.');
-    }
+    console.log('✨ Page chargée avec succès');
+    console.log('📝 Éditez le code et voyez les changements en temps réel!');
 });`,
     },
   ],
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
-  tags: ['premier-projet', 'eveil'],
 });
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -306,15 +159,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
   const [showTutorial, setShowTutorial] = useLocalStorage('ciaoword-show-tutorial', true);
   const [tutorialStep, setTutorialStep] = useLocalStorage('ciaoword-tutorial-step', 0);
-  const [userProgress, setUserProgress] = useLocalStorage<UserProgress>(
-    'ciaoword-progress',
-    defaultUserProgress
-  );
-  const [campaigns, setCampaigns] = useLocalStorage<Campaign[]>('ciaoword-campaigns', []);
-  const [activeView, setActiveView] = useLocalStorage<'editor' | 'missions' | 'analyzer' | 'campaign'>(
-    'ciaoword-active-view',
-    'editor'
-  );
 
   const addConsoleMessage = (message: Omit<ConsoleMessage, 'id' | 'timestamp'>) => {
     const newMessage: ConsoleMessage = {
@@ -327,16 +171,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const clearConsole = () => {
     setConsoleMessages([]);
-  };
-
-  const updateProgress = (progress: UserProgress) => {
-    setUserProgress(progress);
-    if (progress.completedMissions.length > userProgress.completedMissions.length) {
-      addConsoleMessage({
-        type: 'revelation',
-        message: 'Nouvelle mission accomplie. Votre pouvoir grandit.',
-      });
-    }
   };
 
   return (
@@ -357,12 +191,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setShowTutorial,
         tutorialStep,
         setTutorialStep,
-        userProgress,
-        updateProgress,
-        campaigns,
-        setCampaigns,
-        activeView,
-        setActiveView,
       }}
     >
       {children}

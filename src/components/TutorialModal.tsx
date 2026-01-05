@@ -1,33 +1,19 @@
 import { useApp } from '../lib/AppContext';
-import { useI18n } from '../lib/i18n';
-import { tutorialTranslations, tutorialStepIds } from '../data/translations/tutorials';
 import { tutorialSteps } from '../data/tutorials';
-import { X, ChevronLeft, ChevronRight, BookOpen, AlertCircle, Lightbulb, TrendingUp, Zap } from 'lucide-react';
-import { getPhaseInfo } from '../data/missions';
-import { parseMarkdown } from '../lib/markdown';
+import { X, ChevronLeft, ChevronRight, BookOpen, AlertCircle, Lightbulb, TrendingUp } from 'lucide-react';
 
 export function TutorialModal() {
-  const { showTutorial, setShowTutorial, tutorialStep, setTutorialStep, theme, setCurrentProject, addConsoleMessage } = useApp();
-  const { language, t } = useI18n();
+  const { showTutorial, setShowTutorial, tutorialStep, setTutorialStep, theme, setCurrentProject } = useApp();
 
   if (!showTutorial) return null;
 
-  const currentStepId = tutorialStepIds[tutorialStep];
-  const currentStepData = tutorialSteps[tutorialStep];
-  const translatedStep = tutorialTranslations[language]?.[currentStepId] || tutorialTranslations.fr[currentStepId];
-
+  const currentStep = tutorialSteps[tutorialStep];
   const isFirst = tutorialStep === 0;
-  const isLast = tutorialStep === tutorialStepIds.length - 1;
+  const isLast = tutorialStep === tutorialSteps.length - 1;
 
   const handleNext = () => {
     if (!isLast) {
       setTutorialStep(tutorialStep + 1);
-    } else {
-      setShowTutorial(false);
-      addConsoleMessage({
-        type: 'revelation',
-        message: t('common.guideComplete'),
-      });
     }
   };
 
@@ -42,8 +28,8 @@ export function TutorialModal() {
   };
 
   const handleLoadCode = () => {
-    if (currentStepData?.code) {
-      const newFiles = Object.entries(currentStepData.code).map(([name, content]) => ({
+    if (currentStep.code) {
+      const newFiles = Object.entries(currentStep.code).map(([name, content]) => ({
         id: name,
         name,
         type: 'file' as const,
@@ -59,21 +45,14 @@ export function TutorialModal() {
 
       setCurrentProject({
         id: `tutorial-${Date.now()}`,
-        name: `Tutorial: ${translatedStep.title}`,
-        description: translatedStep.description,
+        name: `Tutorial: ${currentStep.title}`,
+        description: currentStep.description,
         files: newFiles,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
-
-      addConsoleMessage({
-        type: 'success',
-        message: `${t('common.exampleLoaded')}: ${translatedStep.title}`,
-      });
     }
   };
-
-  const phaseInfo = currentStepData?.phase ? getPhaseInfo(currentStepData.phase) : null;
 
   return (
     <div
@@ -83,13 +62,12 @@ export function TutorialModal() {
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'rgba(0, 0, 0, 0.75)',
+        background: 'rgba(0, 0, 0, 0.7)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        padding: '1rem',
-        backdropFilter: 'blur(4px)',
+        padding: '2rem',
       }}
       onClick={handleClose}
     >
@@ -97,139 +75,82 @@ export function TutorialModal() {
         style={{
           background: theme.colors.surface,
           borderRadius: '16px',
-          maxWidth: '700px',
+          maxWidth: '800px',
           width: '100%',
-          maxHeight: '85vh',
+          maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 25px 80px rgba(0, 0, 0, 0.4)',
-          overflow: 'hidden',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <div
           style={{
-            padding: '1.25rem 1.5rem',
-            background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`,
-            color: 'white',
+            padding: '1.5rem',
+            borderBottom: `1px solid ${theme.colors.border}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: theme.colors.background,
+            borderRadius: '16px 16px 0 0',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <BookOpen size={20} />
-              <div>
-                <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>
-                  {translatedStep.title}
-                </h2>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
-                  <span style={{ fontSize: '0.75rem', opacity: 0.9 }}>
-                    {tutorialStep + 1} / {tutorialStepIds.length}
-                  </span>
-                  {phaseInfo && (
-                    <>
-                      <span style={{ opacity: 0.5 }}>|</span>
-                      <span
-                        style={{
-                          fontSize: '0.7rem',
-                          padding: '0.1rem 0.5rem',
-                          background: 'rgba(255,255,255,0.2)',
-                          borderRadius: '10px',
-                        }}
-                      >
-                        {phaseInfo.name}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <BookOpen size={24} color={theme.colors.primary} />
+            <div>
+              <h2 style={{ color: theme.colors.text, margin: 0, fontSize: '1.25rem' }}>
+                {currentStep.title}
+              </h2>
+              <p style={{ color: theme.colors.textSecondary, margin: 0, fontSize: '0.875rem' }}>
+                Étape {tutorialStep + 1} sur {tutorialSteps.length}
+              </p>
             </div>
-            <button
-              onClick={handleClose}
-              style={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'white',
-                padding: '0.4rem',
-                borderRadius: '6px',
-                display: 'flex',
-              }}
-            >
-              <X size={18} />
-            </button>
           </div>
-        </div>
-
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
-          <p style={{ color: theme.colors.secondary, fontSize: '0.9rem', fontStyle: 'italic', marginBottom: '1rem' }}>
-            {translatedStep.description}
-          </p>
-
-          <div
+          <button
+            onClick={handleClose}
             style={{
-              color: theme.colors.text,
-              fontSize: '0.9rem',
-              lineHeight: '1.7',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: theme.colors.textSecondary,
+              padding: '0.5rem',
             }}
           >
-            {parseMarkdown(translatedStep.content)}
-          </div>
+            <X size={24} />
+          </button>
+        </div>
 
-          {translatedStep.awakening && (
+        <div style={{ flex: 1, overflowY: 'auto', padding: '2rem' }}>
+          <p
+            style={{
+              color: theme.colors.text,
+              fontSize: '1rem',
+              lineHeight: '1.6',
+              whiteSpace: 'pre-wrap',
+            }}
+          >
+            {currentStep.content}
+          </p>
+
+          {currentStep.tips && currentStep.tips.length > 0 && (
             <div
               style={{
                 marginTop: '1.5rem',
                 padding: '1rem',
-                background: `linear-gradient(135deg, ${theme.colors.primary}15, ${theme.colors.secondary}15)`,
-                borderLeft: `3px solid ${theme.colors.secondary}`,
-                borderRadius: '0 8px 8px 0',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Zap size={16} color={theme.colors.secondary} />
-                <span style={{ color: theme.colors.secondary, fontWeight: 600, fontSize: '0.8rem' }}>
-                  {t('common.revelation')}
-                </span>
-              </div>
-              <p style={{ color: theme.colors.text, fontSize: '0.85rem', margin: 0, lineHeight: 1.6 }}>
-                {translatedStep.awakening}
-              </p>
-            </div>
-          )}
-
-          {translatedStep.narrative && (
-            <div
-              style={{
-                marginTop: '1rem',
-                padding: '1rem',
                 background: theme.colors.background,
                 borderRadius: '8px',
-                fontStyle: 'italic',
-                color: theme.colors.textSecondary,
-                fontSize: '0.85rem',
-                lineHeight: 1.6,
+                border: `1px solid ${theme.colors.border}`,
               }}
             >
-              "{translatedStep.narrative}"
-            </div>
-          )}
-
-          {translatedStep.tips && translatedStep.tips.length > 0 && (
-            <div
-              style={{
-                marginTop: '1.25rem',
-                padding: '1rem',
-                background: theme.colors.background,
-                borderRadius: '8px',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Lightbulb size={16} color={theme.colors.primary} />
-                <span style={{ color: theme.colors.text, fontWeight: 600, fontSize: '0.8rem' }}>{t('common.tips')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <Lightbulb size={18} color={theme.colors.primary} />
+                <h3 style={{ color: theme.colors.text, margin: 0, fontSize: '0.875rem', fontWeight: 600 }}>
+                  Conseils
+                </h3>
               </div>
-              <ul style={{ margin: 0, paddingLeft: '1.25rem', color: theme.colors.textSecondary }}>
-                {translatedStep.tips.map((tip, i) => (
-                  <li key={i} style={{ marginBottom: '0.35rem', fontSize: '0.8rem', lineHeight: 1.5 }}>
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', color: theme.colors.textSecondary }}>
+                {currentStep.tips.map((tip, i) => (
+                  <li key={i} style={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}>
                     {tip}
                   </li>
                 ))}
@@ -237,57 +158,63 @@ export function TutorialModal() {
             </div>
           )}
 
-          {currentStepData?.constraints && currentStepData.constraints.length > 0 && (
+          {currentStep.constraints && currentStep.constraints.length > 0 && (
             <div
               style={{
                 marginTop: '1rem',
                 padding: '1rem',
                 background: '#fef2f2',
                 borderRadius: '8px',
+                border: '1px solid #fecaca',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <AlertCircle size={16} color="#ef4444" />
-                <span style={{ color: '#991b1b', fontWeight: 600, fontSize: '0.8rem' }}>{t('common.limits')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <AlertCircle size={18} color="#ef4444" />
+                <h3 style={{ color: '#991b1b', margin: 0, fontSize: '0.875rem', fontWeight: 600 }}>
+                  Contraintes du Web Statique
+                </h3>
               </div>
-              <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#7f1d1d' }}>
-                {currentStepData.constraints.map((c, i) => (
-                  <li key={i} style={{ marginBottom: '0.35rem', fontSize: '0.8rem', lineHeight: 1.5 }}>
-                    {c}
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#7f1d1d' }}>
+                {currentStep.constraints.map((constraint, i) => (
+                  <li key={i} style={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+                    {constraint}
                   </li>
                 ))}
               </ul>
             </div>
           )}
 
-          {currentStepData?.nextSteps && currentStepData.nextSteps.length > 0 && (
+          {currentStep.nextSteps && currentStep.nextSteps.length > 0 && (
             <div
               style={{
                 marginTop: '1rem',
                 padding: '1rem',
                 background: '#f0fdf4',
                 borderRadius: '8px',
+                border: '1px solid #bbf7d0',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <TrendingUp size={16} color="#10b981" />
-                <span style={{ color: '#065f46', fontWeight: 600, fontSize: '0.8rem' }}>{t('common.goFurther')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <TrendingUp size={18} color="#10b981" />
+                <h3 style={{ color: '#065f46', margin: 0, fontSize: '0.875rem', fontWeight: 600 }}>
+                  Pour Aller Plus Loin
+                </h3>
               </div>
-              <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#064e3b' }}>
-                {currentStepData.nextSteps.map((s, i) => (
-                  <li key={i} style={{ marginBottom: '0.35rem', fontSize: '0.8rem', lineHeight: 1.5 }}>
-                    {s}
+              <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#064e3b' }}>
+                {currentStep.nextSteps.map((step, i) => (
+                  <li key={i} style={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+                    {step}
                   </li>
                 ))}
               </ul>
             </div>
           )}
 
-          {currentStepData?.code && (
+          {currentStep.code && (
             <button
               onClick={handleLoadCode}
               style={{
-                marginTop: '1.25rem',
+                marginTop: '1.5rem',
                 width: '100%',
                 padding: '0.75rem',
                 background: theme.colors.secondary,
@@ -295,23 +222,24 @@ export function TutorialModal() {
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '0.85rem',
+                fontSize: '0.875rem',
                 fontWeight: 600,
               }}
             >
-              {t('common.loadExample')}
+              Charger l'exemple de code
             </button>
           )}
         </div>
 
         <div
           style={{
-            padding: '1rem 1.5rem',
+            padding: '1.5rem',
             borderTop: `1px solid ${theme.colors.border}`,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             background: theme.colors.background,
+            borderRadius: '0 0 16px 16px',
           }}
         >
           <button
@@ -320,33 +248,29 @@ export function TutorialModal() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-              padding: '0.6rem 1rem',
+              gap: '0.5rem',
+              padding: '0.75rem 1.5rem',
               background: isFirst ? theme.colors.border : 'transparent',
-              color: isFirst ? theme.colors.textSecondary : theme.colors.text,
+              color: isFirst ? theme.colors.textSecondary : theme.colors.primary,
               border: `1px solid ${theme.colors.border}`,
-              borderRadius: '6px',
+              borderRadius: '8px',
               cursor: isFirst ? 'not-allowed' : 'pointer',
-              fontSize: '0.8rem',
+              fontSize: '0.875rem',
             }}
           >
-            <ChevronLeft size={16} />
-            {t('common.previous')}
+            <ChevronLeft size={18} />
+            Précédent
           </button>
 
-          <div style={{ display: 'flex', gap: '0.35rem' }}>
-            {tutorialStepIds.map((_, i) => (
-              <button
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {tutorialSteps.map((_, i) => (
+              <div
                 key={i}
-                onClick={() => setTutorialStep(i)}
                 style={{
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
                   background: i === tutorialStep ? theme.colors.primary : theme.colors.border,
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 0,
                 }}
               />
             ))}
@@ -354,22 +278,22 @@ export function TutorialModal() {
 
           <button
             onClick={handleNext}
+            disabled={isLast}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-              padding: '0.6rem 1rem',
-              background: theme.colors.primary,
+              gap: '0.5rem',
+              padding: '0.75rem 1.5rem',
+              background: isLast ? theme.colors.border : theme.colors.primary,
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              fontWeight: 500,
+              borderRadius: '8px',
+              cursor: isLast ? 'not-allowed' : 'pointer',
+              fontSize: '0.875rem',
             }}
           >
-            {isLast ? t('common.finish') : t('common.next')}
-            {!isLast && <ChevronRight size={16} />}
+            {isLast ? 'Terminé' : 'Suivant'}
+            {!isLast && <ChevronRight size={18} />}
           </button>
         </div>
       </div>
