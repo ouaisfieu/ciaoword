@@ -22,17 +22,12 @@ function App() {
   return (
     <div
       style={{
-        width: '100vw',
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
         background: theme.colors.background,
         color: theme.colors.text,
         fontFamily: 'system-ui, -apple-system, sans-serif',
-        overflow: 'hidden',
-        position: 'fixed',
-        top: 0,
-        left: 0,
       }}
     >
       <header
@@ -44,8 +39,6 @@ function App() {
           alignItems: 'center',
           justifyContent: 'space-between',
           boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-          flexShrink: 0,
-          zIndex: 10,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -102,11 +95,11 @@ function App() {
         </div>
       </header>
 
-      <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-        <Group orientation="horizontal" style={{ height: '100%' }}>
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <Group orientation="horizontal" style={{ width: '100%', height: '100%' }}>
           {layout.showSidebar && (
             <>
-              <Panel defaultSize={20} minSize={15} maxSize={30} style={{ position: 'relative', zIndex: 1 }}>
+              <Panel defaultSize={20} minSize={15} maxSize={30}>
                 <Sidebar />
               </Panel>
               <Separator
@@ -114,14 +107,12 @@ function App() {
                   width: '4px',
                   background: theme.colors.border,
                   cursor: 'col-resize',
-                  position: 'relative',
-                  zIndex: 2,
                 }}
               />
             </>
           )}
 
-          <Panel defaultSize={layout.showSidebar ? 40 : 50} minSize={25} style={{ position: 'relative', zIndex: 1 }}>
+          <Panel defaultSize={layout.showSidebar ? 40 : 50} minSize={30}>
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <div
                 style={{
@@ -134,11 +125,10 @@ function App() {
                   alignItems: 'center',
                   gap: '0.5rem',
                   letterSpacing: '0.3px',
-                  flexShrink: 0,
                 }}
               >
                 <Code size={16} color={theme.colors.primary} />
-                <span>Éditeur</span>
+                <span>Éditeur de Code</span>
                 {currentFile && (
                   <span style={{
                     marginLeft: 'auto',
@@ -150,7 +140,7 @@ function App() {
                   </span>
                 )}
               </div>
-              <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+              <div style={{ flex: 1, overflow: 'hidden' }}>
                 <CodeEditor />
               </div>
             </div>
@@ -161,12 +151,10 @@ function App() {
               width: '4px',
               background: theme.colors.border,
               cursor: 'col-resize',
-              position: 'relative',
-              zIndex: 2,
             }}
           />
 
-          <Panel defaultSize={layout.showSidebar ? 40 : 50} minSize={25} style={{ position: 'relative', zIndex: 1 }}>
+          <Panel defaultSize={layout.showSidebar ? 40 : 50} minSize={30}>
             {layout.showConsole ? (
               <Group orientation="vertical">
                 <Panel defaultSize={70} minSize={40}>

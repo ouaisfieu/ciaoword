@@ -159,13 +159,10 @@ export function Sidebar() {
     <div
       style={{
         height: '100%',
-        width: '100%',
         display: 'flex',
         flexDirection: 'column',
         background: theme.colors.surface,
         borderRight: `1px solid ${theme.colors.border}`,
-        overflow: 'hidden',
-        position: 'relative',
       }}
     >
       <div
