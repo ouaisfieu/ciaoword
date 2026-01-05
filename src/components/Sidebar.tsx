@@ -163,6 +163,8 @@ export function Sidebar() {
         flexDirection: 'column',
         background: theme.colors.surface,
         borderRight: `1px solid ${theme.colors.border}`,
+        position: 'relative',
+        zIndex: 10,
       }}
     >
       <div
