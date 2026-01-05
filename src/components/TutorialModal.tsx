@@ -1,16 +1,23 @@
 import { useApp } from '../lib/AppContext';
+import { useI18n } from '../lib/i18n';
+import { tutorialTranslations, tutorialStepIds } from '../data/translations/tutorials';
 import { tutorialSteps } from '../data/tutorials';
 import { X, ChevronLeft, ChevronRight, BookOpen, AlertCircle, Lightbulb, TrendingUp, Zap } from 'lucide-react';
 import { getPhaseInfo } from '../data/missions';
+import { parseMarkdown } from '../lib/markdown';
 
 export function TutorialModal() {
   const { showTutorial, setShowTutorial, tutorialStep, setTutorialStep, theme, setCurrentProject, addConsoleMessage } = useApp();
+  const { language, t } = useI18n();
 
   if (!showTutorial) return null;
 
-  const currentStep = tutorialSteps[tutorialStep];
+  const currentStepId = tutorialStepIds[tutorialStep];
+  const currentStepData = tutorialSteps[tutorialStep];
+  const translatedStep = tutorialTranslations[language]?.[currentStepId] || tutorialTranslations.fr[currentStepId];
+
   const isFirst = tutorialStep === 0;
-  const isLast = tutorialStep === tutorialSteps.length - 1;
+  const isLast = tutorialStep === tutorialStepIds.length - 1;
 
   const handleNext = () => {
     if (!isLast) {
@@ -19,7 +26,7 @@ export function TutorialModal() {
       setShowTutorial(false);
       addConsoleMessage({
         type: 'revelation',
-        message: 'Guide termine. Vous avez les bases. Explorez les missions pour aller plus loin.',
+        message: t('common.guideComplete'),
       });
     }
   };
@@ -35,8 +42,8 @@ export function TutorialModal() {
   };
 
   const handleLoadCode = () => {
-    if (currentStep.code) {
-      const newFiles = Object.entries(currentStep.code).map(([name, content]) => ({
+    if (currentStepData?.code) {
+      const newFiles = Object.entries(currentStepData.code).map(([name, content]) => ({
         id: name,
         name,
         type: 'file' as const,
@@ -52,8 +59,8 @@ export function TutorialModal() {
 
       setCurrentProject({
         id: `tutorial-${Date.now()}`,
-        name: `Tutorial: ${currentStep.title}`,
-        description: currentStep.description,
+        name: `Tutorial: ${translatedStep.title}`,
+        description: translatedStep.description,
         files: newFiles,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -61,12 +68,12 @@ export function TutorialModal() {
 
       addConsoleMessage({
         type: 'success',
-        message: `Code d'exemple charge: ${currentStep.title}`,
+        message: `${t('common.exampleLoaded')}: ${translatedStep.title}`,
       });
     }
   };
 
-  const phaseInfo = currentStep.phase ? getPhaseInfo(currentStep.phase) : null;
+  const phaseInfo = currentStepData?.phase ? getPhaseInfo(currentStepData.phase) : null;
 
   return (
     <div
@@ -112,11 +119,11 @@ export function TutorialModal() {
               <BookOpen size={20} />
               <div>
                 <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>
-                  {currentStep.title}
+                  {translatedStep.title}
                 </h2>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
                   <span style={{ fontSize: '0.75rem', opacity: 0.9 }}>
-                    {tutorialStep + 1} / {tutorialSteps.length}
+                    {tutorialStep + 1} / {tutorialStepIds.length}
                   </span>
                   {phaseInfo && (
                     <>
@@ -155,7 +162,7 @@ export function TutorialModal() {
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
           <p style={{ color: theme.colors.secondary, fontSize: '0.9rem', fontStyle: 'italic', marginBottom: '1rem' }}>
-            {currentStep.description}
+            {translatedStep.description}
           </p>
 
           <div
@@ -163,13 +170,12 @@ export function TutorialModal() {
               color: theme.colors.text,
               fontSize: '0.9rem',
               lineHeight: '1.7',
-              whiteSpace: 'pre-wrap',
             }}
           >
-            {currentStep.content}
+            {parseMarkdown(translatedStep.content)}
           </div>
 
-          {currentStep.awakening && (
+          {translatedStep.awakening && (
             <div
               style={{
                 marginTop: '1.5rem',
@@ -182,16 +188,16 @@ export function TutorialModal() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <Zap size={16} color={theme.colors.secondary} />
                 <span style={{ color: theme.colors.secondary, fontWeight: 600, fontSize: '0.8rem' }}>
-                  Revelation
+                  {t('common.revelation')}
                 </span>
               </div>
               <p style={{ color: theme.colors.text, fontSize: '0.85rem', margin: 0, lineHeight: 1.6 }}>
-                {currentStep.awakening}
+                {translatedStep.awakening}
               </p>
             </div>
           )}
 
-          {currentStep.narrative && (
+          {translatedStep.narrative && (
             <div
               style={{
                 marginTop: '1rem',
@@ -204,11 +210,11 @@ export function TutorialModal() {
                 lineHeight: 1.6,
               }}
             >
-              "{currentStep.narrative}"
+              "{translatedStep.narrative}"
             </div>
           )}
 
-          {currentStep.tips && currentStep.tips.length > 0 && (
+          {translatedStep.tips && translatedStep.tips.length > 0 && (
             <div
               style={{
                 marginTop: '1.25rem',
@@ -219,10 +225,10 @@ export function TutorialModal() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <Lightbulb size={16} color={theme.colors.primary} />
-                <span style={{ color: theme.colors.text, fontWeight: 600, fontSize: '0.8rem' }}>Conseils</span>
+                <span style={{ color: theme.colors.text, fontWeight: 600, fontSize: '0.8rem' }}>{t('common.tips')}</span>
               </div>
               <ul style={{ margin: 0, paddingLeft: '1.25rem', color: theme.colors.textSecondary }}>
-                {currentStep.tips.map((tip, i) => (
+                {translatedStep.tips.map((tip, i) => (
                   <li key={i} style={{ marginBottom: '0.35rem', fontSize: '0.8rem', lineHeight: 1.5 }}>
                     {tip}
                   </li>
@@ -231,7 +237,7 @@ export function TutorialModal() {
             </div>
           )}
 
-          {currentStep.constraints && currentStep.constraints.length > 0 && (
+          {currentStepData?.constraints && currentStepData.constraints.length > 0 && (
             <div
               style={{
                 marginTop: '1rem',
@@ -242,10 +248,10 @@ export function TutorialModal() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <AlertCircle size={16} color="#ef4444" />
-                <span style={{ color: '#991b1b', fontWeight: 600, fontSize: '0.8rem' }}>Limites</span>
+                <span style={{ color: '#991b1b', fontWeight: 600, fontSize: '0.8rem' }}>{t('common.limits')}</span>
               </div>
               <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#7f1d1d' }}>
-                {currentStep.constraints.map((c, i) => (
+                {currentStepData.constraints.map((c, i) => (
                   <li key={i} style={{ marginBottom: '0.35rem', fontSize: '0.8rem', lineHeight: 1.5 }}>
                     {c}
                   </li>
@@ -254,7 +260,7 @@ export function TutorialModal() {
             </div>
           )}
 
-          {currentStep.nextSteps && currentStep.nextSteps.length > 0 && (
+          {currentStepData?.nextSteps && currentStepData.nextSteps.length > 0 && (
             <div
               style={{
                 marginTop: '1rem',
@@ -265,10 +271,10 @@ export function TutorialModal() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <TrendingUp size={16} color="#10b981" />
-                <span style={{ color: '#065f46', fontWeight: 600, fontSize: '0.8rem' }}>Pour aller plus loin</span>
+                <span style={{ color: '#065f46', fontWeight: 600, fontSize: '0.8rem' }}>{t('common.goFurther')}</span>
               </div>
               <ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#064e3b' }}>
-                {currentStep.nextSteps.map((s, i) => (
+                {currentStepData.nextSteps.map((s, i) => (
                   <li key={i} style={{ marginBottom: '0.35rem', fontSize: '0.8rem', lineHeight: 1.5 }}>
                     {s}
                   </li>
@@ -277,7 +283,7 @@ export function TutorialModal() {
             </div>
           )}
 
-          {currentStep.code && (
+          {currentStepData?.code && (
             <button
               onClick={handleLoadCode}
               style={{
@@ -293,7 +299,7 @@ export function TutorialModal() {
                 fontWeight: 600,
               }}
             >
-              Charger l'exemple de code
+              {t('common.loadExample')}
             </button>
           )}
         </div>
@@ -325,11 +331,11 @@ export function TutorialModal() {
             }}
           >
             <ChevronLeft size={16} />
-            Precedent
+            {t('common.previous')}
           </button>
 
           <div style={{ display: 'flex', gap: '0.35rem' }}>
-            {tutorialSteps.map((_, i) => (
+            {tutorialStepIds.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setTutorialStep(i)}
@@ -362,7 +368,7 @@ export function TutorialModal() {
               fontWeight: 500,
             }}
           >
-            {isLast ? 'Terminer' : 'Suivant'}
+            {isLast ? t('common.finish') : t('common.next')}
             {!isLast && <ChevronRight size={16} />}
           </button>
         </div>
