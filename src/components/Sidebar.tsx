@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useApp } from '../lib/AppContext';
-import { useI18n, languageNames, type Language } from '../lib/i18n';
 import {
   FileText,
   FolderOpen,
@@ -12,7 +11,6 @@ import {
   Network,
   Code,
   Zap,
-  Globe,
 } from 'lucide-react';
 import { templates } from '../data/templates';
 import { availableThemes } from '../data/themes';
@@ -34,7 +32,6 @@ export function Sidebar() {
     userProgress,
     setActiveView,
   } = useApp();
-  const { language, setLanguage, t } = useI18n();
   const [activeTab, setActiveTab] = useState<'files' | 'missions' | 'templates' | 'settings'>('files');
 
   const handleFileClick = (fileId: string) => {
@@ -73,7 +70,7 @@ export function Sidebar() {
     setActiveView('editor');
     addConsoleMessage({
       type: 'success',
-      message: `Template "${template.name}" ${t('common.exampleLoaded').toLowerCase()}`,
+      message: `Template "${template.name}" charge`,
     });
   };
 
@@ -93,10 +90,7 @@ export function Sidebar() {
 
     addConsoleMessage({
       type: 'success',
-      message: language === 'fr' ? 'Projet exporte avec succes.' :
-               language === 'en' ? 'Project exported successfully.' :
-               language === 'nl' ? 'Project succesvol geexporteerd.' :
-               'Projekt erfolgreich exportiert.',
+      message: 'Projet exporte avec succes. Vous pouvez le deployer ou vous voulez.',
     });
   };
 
@@ -105,8 +99,8 @@ export function Sidebar() {
     setTutorialStep(0);
   };
 
-  const phaseLabels: Record<Language, Record<string, string>> = {
-    fr: {
+  const getPhaseLabel = () => {
+    const phases: Record<string, string> = {
       awakening: 'Eveil',
       observation: 'Observation',
       deconstruction: 'Deconstruction',
@@ -114,45 +108,8 @@ export function Sidebar() {
       influence: 'Influence',
       network: 'Reseau',
       campaign: 'Campagne',
-    },
-    en: {
-      awakening: 'Awakening',
-      observation: 'Observation',
-      deconstruction: 'Deconstruction',
-      creation: 'Creation',
-      influence: 'Influence',
-      network: 'Network',
-      campaign: 'Campaign',
-    },
-    nl: {
-      awakening: 'Ontwaken',
-      observation: 'Observatie',
-      deconstruction: 'Deconstructie',
-      creation: 'Creatie',
-      influence: 'Invloed',
-      network: 'Netwerk',
-      campaign: 'Campagne',
-    },
-    de: {
-      awakening: 'Erwachen',
-      observation: 'Beobachtung',
-      deconstruction: 'Dekonstruktion',
-      creation: 'Kreation',
-      influence: 'Einfluss',
-      network: 'Netzwerk',
-      campaign: 'Kampagne',
-    },
-  };
-
-  const getPhaseLabel = () => {
-    return phaseLabels[language][userProgress.currentPhase] || phaseLabels.fr[userProgress.currentPhase];
-  };
-
-  const difficultyLabels: Record<Language, Record<string, string>> = {
-    fr: { beginner: 'Debut', intermediate: 'Inter', advanced: 'Avance', subversive: 'Subversif' },
-    en: { beginner: 'Beginner', intermediate: 'Inter', advanced: 'Advanced', subversive: 'Subversive' },
-    nl: { beginner: 'Begin', intermediate: 'Midden', advanced: 'Gevord', subversive: 'Subversief' },
-    de: { beginner: 'Anfang', intermediate: 'Mittel', advanced: 'Fortg', subversive: 'Subversiv' },
+    };
+    return phases[userProgress.currentPhase] || 'Eveil';
   };
 
   return (
@@ -190,7 +147,7 @@ export function Sidebar() {
       >
         {[
           { id: 'files', icon: Code, label: 'Code' },
-          { id: 'missions', icon: Target, label: t('sidebar.missions') },
+          { id: 'missions', icon: Target, label: 'Missions' },
           { id: 'templates', icon: BookOpen, label: 'Kits' },
           { id: 'settings', icon: Palette, label: 'Style' },
         ].map((tab) => (
@@ -272,7 +229,7 @@ export function Sidebar() {
                 }}
               >
                 <Download size={14} />
-                {t('sidebar.export')} (ZIP)
+                Exporter (ZIP)
               </button>
               <button
                 onClick={handleStartTutorial}
@@ -291,7 +248,7 @@ export function Sidebar() {
                 }}
               >
                 <HelpCircle size={14} />
-                {t('sidebar.guide')}
+                Guide
               </button>
             </div>
           </div>
@@ -302,10 +259,7 @@ export function Sidebar() {
         {activeTab === 'templates' && (
           <div style={{ padding: '1rem' }}>
             <h3 style={{ color: theme.colors.text, fontSize: '0.875rem', marginBottom: '1rem' }}>
-              {language === 'fr' ? 'Kits de demarrage' :
-               language === 'en' ? 'Starter kits' :
-               language === 'nl' ? 'Startkits' :
-               'Starterkits'}
+              Kits de demarrage
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {templates.map((template) => (
@@ -338,7 +292,13 @@ export function Sidebar() {
                         color: 'white',
                       }}
                     >
-                      {difficultyLabels[language][template.difficulty] || difficultyLabels.fr[template.difficulty]}
+                      {template.difficulty === 'beginner'
+                        ? 'Debut'
+                        : template.difficulty === 'intermediate'
+                        ? 'Inter'
+                        : template.difficulty === 'advanced'
+                        ? 'Avance'
+                        : 'Subversif'}
                     </span>
                   </div>
                   <p style={{ color: theme.colors.textSecondary, fontSize: '0.7rem', marginBottom: '0.5rem', lineHeight: 1.4 }}>
@@ -357,10 +317,7 @@ export function Sidebar() {
                       fontSize: '0.7rem',
                     }}
                   >
-                    {language === 'fr' ? 'Charger' :
-                     language === 'en' ? 'Load' :
-                     language === 'nl' ? 'Laden' :
-                     'Laden'}
+                    Charger
                   </button>
                 </div>
               ))}
@@ -370,50 +327,8 @@ export function Sidebar() {
 
         {activeTab === 'settings' && (
           <div style={{ padding: '1rem' }}>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ color: theme.colors.text, fontSize: '0.875rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Globe size={14} />
-                {language === 'fr' ? 'Langue' :
-                 language === 'en' ? 'Language' :
-                 language === 'nl' ? 'Taal' :
-                 'Sprache'}
-              </h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {(Object.keys(languageNames) as Language[]).map((lang) => (
-                  <button
-                    key={lang}
-                    onClick={() => {
-                      setLanguage(lang);
-                      addConsoleMessage({
-                        type: 'success',
-                        message: lang === 'fr' ? 'Langue changee: Francais' :
-                                 lang === 'en' ? 'Language changed: English' :
-                                 lang === 'nl' ? 'Taal gewijzigd: Nederlands' :
-                                 'Sprache geandert: Deutsch',
-                      });
-                    }}
-                    style={{
-                      padding: '0.5rem 0.75rem',
-                      background: language === lang ? theme.colors.primary : theme.colors.background,
-                      color: language === lang ? 'white' : theme.colors.text,
-                      border: language === lang ? 'none' : `1px solid ${theme.colors.border}`,
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '0.75rem',
-                      fontWeight: language === lang ? 600 : 400,
-                    }}
-                  >
-                    {languageNames[lang]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <h3 style={{ color: theme.colors.text, fontSize: '0.875rem', marginBottom: '1rem' }}>
-              {language === 'fr' ? 'Apparence' :
-               language === 'en' ? 'Appearance' :
-               language === 'nl' ? 'Uiterlijk' :
-               'Aussehen'}
+              Apparence
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {availableThemes.map((t) => (
@@ -423,10 +338,7 @@ export function Sidebar() {
                     setTheme(t);
                     addConsoleMessage({
                       type: 'success',
-                      message: `Theme "${t.name}" ${language === 'fr' ? 'active' :
-                               language === 'en' ? 'activated' :
-                               language === 'nl' ? 'geactiveerd' :
-                               'aktiviert'}`,
+                      message: `Theme "${t.name}" active`,
                     });
                   }}
                   style={{
@@ -464,22 +376,10 @@ export function Sidebar() {
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', opacity: 0.7 }}>
                 {[
-                  { name: 'C!AoSCAN', desc: language === 'fr' ? 'Veille automatisee' :
-                                           language === 'en' ? 'Automated monitoring' :
-                                           language === 'nl' ? 'Automatische monitoring' :
-                                           'Automatische Uberwachung' },
-                  { name: 'C!AoNET', desc: language === 'fr' ? 'Gestion de reseaux' :
-                                          language === 'en' ? 'Network management' :
-                                          language === 'nl' ? 'Netwerkbeheer' :
-                                          'Netzwerkverwaltung' },
-                  { name: 'C!AoVOX', desc: language === 'fr' ? 'Amplification' :
-                                          language === 'en' ? 'Amplification' :
-                                          language === 'nl' ? 'Versterking' :
-                                          'Verstarkung' },
-                  { name: 'C!AoSAFE', desc: language === 'fr' ? 'Securite' :
-                                           language === 'en' ? 'Security' :
-                                           language === 'nl' ? 'Veiligheid' :
-                                           'Sicherheit' },
+                  { name: 'C!AoSCAN', desc: 'Veille automatisee', locked: true },
+                  { name: 'C!AoNET', desc: 'Gestion de reseaux', locked: true },
+                  { name: 'C!AoVOX', desc: 'Amplification', locked: true },
+                  { name: 'C!AoSAFE', desc: 'Securite', locked: true },
                 ].map((tool) => (
                   <div
                     key={tool.name}
@@ -497,12 +397,7 @@ export function Sidebar() {
                       <div style={{ fontSize: '0.75rem', color: theme.colors.text }}>{tool.name}</div>
                       <div style={{ fontSize: '0.65rem', color: theme.colors.textSecondary }}>{tool.desc}</div>
                     </div>
-                    <span style={{ fontSize: '0.6rem', color: theme.colors.textSecondary }}>
-                      {language === 'fr' ? 'Bientot' :
-                       language === 'en' ? 'Soon' :
-                       language === 'nl' ? 'Binnenkort' :
-                       'Bald'}
-                    </span>
+                    <span style={{ fontSize: '0.6rem', color: theme.colors.textSecondary }}>Bientot</span>
                   </div>
                 ))}
               </div>

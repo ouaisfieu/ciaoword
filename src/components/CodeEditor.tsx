@@ -51,13 +51,13 @@ export function CodeEditor() {
   }
 
   return (
-    <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
+    <div style={{ height: '100%', width: '100%' }}>
       <Editor
         height="100%"
         language={currentFileObj.language}
         value={code}
         onChange={handleEditorChange}
-        theme={theme.id.includes('dark') ? 'vs-dark' : 'vs'}
+        theme={theme.id.includes('dark') ? 'vs-dark' : 'light'}
         options={{
           minimap: { enabled: true },
           fontSize: 14,

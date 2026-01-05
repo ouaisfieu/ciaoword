@@ -6,21 +6,18 @@ import { Console } from './components/Console';
 import { Sidebar } from './components/Sidebar';
 import { TutorialModal } from './components/TutorialModal';
 import { VirtualAssistant } from './components/VirtualAssistant';
-import { Menu, Code, Eye, Terminal } from 'lucide-react';
+import { Menu, EyeOff, Terminal, X } from 'lucide-react';
 
 function App() {
-  const { theme, layout, setLayout, currentFile } = useApp();
+  const { theme, layout, setLayout } = useApp();
 
-  const toggleSidebar = () => setLayout({ ...layout, showSidebar: !layout.showSidebar });
-  const toggleEditor = () => setLayout({ ...layout, showEditor: !layout.showEditor });
-  const togglePreview = () => setLayout({ ...layout, showPreview: !layout.showPreview });
-  const toggleConsole = () => setLayout({ ...layout, showConsole: !layout.showConsole });
+  const toggleSidebar = () => {
+    setLayout({ ...layout, showSidebar: !layout.showSidebar });
+  };
 
-  const visiblePanels = [
-    layout.showSidebar,
-    layout.showEditor,
-    layout.showPreview
-  ].filter(Boolean).length;
+  const toggleConsole = () => {
+    setLayout({ ...layout, showConsole: !layout.showConsole });
+  };
 
   return (
     <div
@@ -37,7 +34,7 @@ function App() {
         style={{
           background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`,
           color: 'white',
-          padding: '0.75rem 1.5rem',
+          padding: '1rem 1.5rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -45,222 +42,125 @@ function App() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700 }}>C!AoWORD</h1>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>C!AoWORD</h1>
+          <span
+            style={{
+              fontSize: '0.875rem',
+              opacity: 0.9,
+              fontWeight: 300,
+            }}
+          >
+            Créateur de Sites Statiques
+          </span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button
             onClick={toggleSidebar}
             style={{
-              background: layout.showSidebar ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)',
-              border: layout.showSidebar ? '2px solid rgba(255, 255, 255, 0.5)' : '2px solid transparent',
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
               color: 'white',
-              padding: '0.4rem 0.9rem',
+              padding: '0.5rem 1rem',
               borderRadius: '6px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.8rem',
-              fontWeight: layout.showSidebar ? 600 : 400,
-              transition: 'all 0.2s',
+              gap: '0.5rem',
+              fontSize: '0.875rem',
             }}
-            title="Menu / Sidebar"
+            title={layout.showSidebar ? 'Masquer la sidebar' : 'Afficher la sidebar'}
           >
-            <Menu size={14} />
-            Menu
-          </button>
-          <button
-            onClick={toggleEditor}
-            style={{
-              background: layout.showEditor ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)',
-              border: layout.showEditor ? '2px solid rgba(255, 255, 255, 0.5)' : '2px solid transparent',
-              color: 'white',
-              padding: '0.4rem 0.9rem',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.8rem',
-              fontWeight: layout.showEditor ? 600 : 400,
-              transition: 'all 0.2s',
-            }}
-            title="Éditeur de code"
-          >
-            <Code size={14} />
-            Éditeur
-          </button>
-          <button
-            onClick={togglePreview}
-            style={{
-              background: layout.showPreview ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)',
-              border: layout.showPreview ? '2px solid rgba(255, 255, 255, 0.5)' : '2px solid transparent',
-              color: 'white',
-              padding: '0.4rem 0.9rem',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.8rem',
-              fontWeight: layout.showPreview ? 600 : 400,
-              transition: 'all 0.2s',
-            }}
-            title="Aperçu en direct"
-          >
-            <Eye size={14} />
-            Aperçu
+            {layout.showSidebar ? <EyeOff size={16} /> : <Menu size={16} />}
+            Sidebar
           </button>
           <button
             onClick={toggleConsole}
             style={{
-              background: layout.showConsole ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.15)',
-              border: layout.showConsole ? '2px solid rgba(255, 255, 255, 0.5)' : '2px solid transparent',
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
               color: 'white',
-              padding: '0.4rem 0.9rem',
+              padding: '0.5rem 1rem',
               borderRadius: '6px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.4rem',
-              fontSize: '0.8rem',
-              fontWeight: layout.showConsole ? 600 : 400,
-              transition: 'all 0.2s',
+              gap: '0.5rem',
+              fontSize: '0.875rem',
             }}
-            title="Console"
+            title={layout.showConsole ? 'Masquer la console' : 'Afficher la console'}
           >
-            <Terminal size={14} />
+            {layout.showConsole ? <X size={16} /> : <Terminal size={16} />}
             Console
           </button>
         </div>
       </header>
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {visiblePanels === 0 ? (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: theme.colors.textSecondary,
-              fontSize: '1.1rem',
-            }}
-          >
-            Activez au moins un panneau pour commencer
-          </div>
-        ) : (
-          <Group orientation="horizontal" style={{ width: '100%', height: '100%' }}>
-            {layout.showSidebar && (
-              <>
-                <Panel defaultSize={20} minSize={15} maxSize={35}>
-                  <Sidebar />
-                </Panel>
-                <Separator
-                  style={{
-                    width: '4px',
-                    background: theme.colors.border,
-                    cursor: 'col-resize',
-                  }}
-                />
-              </>
-            )}
-
-            {layout.showEditor && (
-              <>
-                <Panel defaultSize={40} minSize={25}>
-                  <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <div
-                      style={{
-                        padding: '0.75rem 1rem',
-                        background: theme.colors.surface,
-                        borderBottom: `1px solid ${theme.colors.border}`,
-                        fontWeight: 600,
-                        fontSize: '0.85rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                      }}
-                    >
-                      <Code size={16} color={theme.colors.primary} />
-                      <span>Éditeur</span>
-                      {currentFile && (
-                        <span
-                          style={{
-                            marginLeft: 'auto',
-                            fontSize: '0.75rem',
-                            color: theme.colors.textSecondary,
-                            fontWeight: 400,
-                          }}
-                        >
-                          {currentFile}
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                      <CodeEditor />
-                    </div>
-                  </div>
-                </Panel>
-                {layout.showPreview && (
-                  <Separator
-                    style={{
-                      width: '4px',
-                      background: theme.colors.border,
-                      cursor: 'col-resize',
-                    }}
-                  />
-                )}
-              </>
-            )}
-
-            {layout.showPreview && (
-              <Panel defaultSize={40} minSize={25}>
-                {layout.showConsole ? (
-                  <Group orientation="vertical">
-                    <Panel defaultSize={70} minSize={40}>
-                      <LivePreview />
-                    </Panel>
-                    <Separator
-                      style={{
-                        height: '4px',
-                        background: theme.colors.border,
-                        cursor: 'row-resize',
-                      }}
-                    />
-                    <Panel defaultSize={30} minSize={15} maxSize={50}>
-                      <Console />
-                    </Panel>
-                  </Group>
-                ) : (
-                  <LivePreview />
-                )}
+        <Group orientation="horizontal">
+          {layout.showSidebar && (
+            <>
+              <Panel defaultSize={20} minSize={15} maxSize={30}>
+                <Sidebar />
               </Panel>
-            )}
+              <Separator
+                style={{
+                  width: '4px',
+                  background: theme.colors.border,
+                  cursor: 'col-resize',
+                }}
+              />
+            </>
+          )}
 
-            {!layout.showPreview && layout.showConsole && layout.showEditor && (
-              <>
+          <Panel defaultSize={layout.showSidebar ? 40 : 50} minSize={30}>
+            <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <div
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: theme.colors.surface,
+                  borderBottom: `1px solid ${theme.colors.border}`,
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                }}
+              >
+                Éditeur de Code
+              </div>
+              <div style={{ flex: 1 }}>
+                <CodeEditor />
+              </div>
+            </div>
+          </Panel>
+
+          <Separator
+            style={{
+              width: '4px',
+              background: theme.colors.border,
+              cursor: 'col-resize',
+            }}
+          />
+
+          <Panel defaultSize={layout.showSidebar ? 40 : 50} minSize={30}>
+            {layout.showConsole ? (
+              <Group orientation="vertical">
+                <Panel defaultSize={70} minSize={40}>
+                  <LivePreview />
+                </Panel>
                 <Separator
                   style={{
-                    width: '4px',
+                    height: '4px',
                     background: theme.colors.border,
-                    cursor: 'col-resize',
+                    cursor: 'row-resize',
                   }}
                 />
-                <Panel defaultSize={30} minSize={20} maxSize={40}>
+                <Panel defaultSize={30} minSize={15} maxSize={50}>
                   <Console />
                 </Panel>
-              </>
+              </Group>
+            ) : (
+              <LivePreview />
             )}
-
-            {!layout.showPreview && layout.showConsole && !layout.showEditor && (
-              <Panel defaultSize={60} minSize={30}>
-                <Console />
-              </Panel>
-            )}
-          </Group>
-        )}
+          </Panel>
+        </Group>
       </div>
 
       <TutorialModal />
