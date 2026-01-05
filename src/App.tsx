@@ -1,0 +1,172 @@
+import { Panel, Group, Separator } from 'react-resizable-panels';
+import { useApp } from './lib/AppContext';
+import { CodeEditor } from './components/CodeEditor';
+import { LivePreview } from './components/LivePreview';
+import { Console } from './components/Console';
+import { Sidebar } from './components/Sidebar';
+import { TutorialModal } from './components/TutorialModal';
+import { VirtualAssistant } from './components/VirtualAssistant';
+import { Menu, EyeOff, Terminal, X } from 'lucide-react';
+
+function App() {
+  const { theme, layout, setLayout } = useApp();
+
+  const toggleSidebar = () => {
+    setLayout({ ...layout, showSidebar: !layout.showSidebar });
+  };
+
+  const toggleConsole = () => {
+    setLayout({ ...layout, showConsole: !layout.showConsole });
+  };
+
+  return (
+    <div
+      style={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        background: theme.colors.background,
+        color: theme.colors.text,
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+      }}
+    >
+      <header
+        style={{
+          background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.secondary})`,
+          color: 'white',
+          padding: '1rem 1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700 }}>C!AoWORD</h1>
+          <span
+            style={{
+              fontSize: '0.875rem',
+              opacity: 0.9,
+              fontWeight: 300,
+            }}
+          >
+            Créateur de Sites Statiques
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={toggleSidebar}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.875rem',
+            }}
+            title={layout.showSidebar ? 'Masquer la sidebar' : 'Afficher la sidebar'}
+          >
+            {layout.showSidebar ? <EyeOff size={16} /> : <Menu size={16} />}
+            Sidebar
+          </button>
+          <button
+            onClick={toggleConsole}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontSize: '0.875rem',
+            }}
+            title={layout.showConsole ? 'Masquer la console' : 'Afficher la console'}
+          >
+            {layout.showConsole ? <X size={16} /> : <Terminal size={16} />}
+            Console
+          </button>
+        </div>
+      </header>
+
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <Group orientation="horizontal">
+          {layout.showSidebar && (
+            <>
+              <Panel defaultSize={20} minSize={15} maxSize={30}>
+                <Sidebar />
+              </Panel>
+              <Separator
+                style={{
+                  width: '4px',
+                  background: theme.colors.border,
+                  cursor: 'col-resize',
+                }}
+              />
+            </>
+          )}
+
+          <Panel defaultSize={layout.showSidebar ? 40 : 50} minSize={30}>
+            <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <div
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: theme.colors.surface,
+                  borderBottom: `1px solid ${theme.colors.border}`,
+                  fontWeight: 500,
+                  fontSize: '0.875rem',
+                }}
+              >
+                Éditeur de Code
+              </div>
+              <div style={{ flex: 1 }}>
+                <CodeEditor />
+              </div>
+            </div>
+          </Panel>
+
+          <Separator
+            style={{
+              width: '4px',
+              background: theme.colors.border,
+              cursor: 'col-resize',
+            }}
+          />
+
+          <Panel defaultSize={layout.showSidebar ? 40 : 50} minSize={30}>
+            {layout.showConsole ? (
+              <Group orientation="vertical">
+                <Panel defaultSize={70} minSize={40}>
+                  <LivePreview />
+                </Panel>
+                <Separator
+                  style={{
+                    height: '4px',
+                    background: theme.colors.border,
+                    cursor: 'row-resize',
+                  }}
+                />
+                <Panel defaultSize={30} minSize={15} maxSize={50}>
+                  <Console />
+                </Panel>
+              </Group>
+            ) : (
+              <LivePreview />
+            )}
+          </Panel>
+        </Group>
+      </div>
+
+      <TutorialModal />
+      <VirtualAssistant />
+    </div>
+  );
+}
+
+export default App;
