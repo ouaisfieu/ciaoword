@@ -123,7 +123,7 @@ function App() {
                   fontSize: '0.875rem',
                 }}
               >
-                Éditeur de Code
+                Editeur de Code
               </div>
               <div style={{ flex: 1 }}>
                 <CodeEditor />
