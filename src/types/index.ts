@@ -39,6 +39,8 @@ export interface LayoutConfig {
   sidebarWidth: number;
   consoleHeight: number;
   showSidebar: boolean;
+  showEditor: boolean;
+  showPreview: boolean;
   showConsole: boolean;
   showAssistant: boolean;
 }
